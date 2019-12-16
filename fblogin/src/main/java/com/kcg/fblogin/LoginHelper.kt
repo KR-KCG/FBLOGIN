@@ -93,6 +93,8 @@ object LoginHelper {
                             signInResult?.invoke(null)
                         }
                     })
+
+                LoginManager.getInstance().logInWithReadPermissions(activity!!, arrayListOf("public_profile","email"))
             }
         }
     }
@@ -128,6 +130,8 @@ object LoginHelper {
 
     private fun firebaseAuthWithFacebook(token: AccessToken) {
         Log.d(TAG, "handleFacebookAccessToken:$token")
+
+
         signInWithCredential(FacebookAuthProvider.getCredential(token.token))
     }
 
