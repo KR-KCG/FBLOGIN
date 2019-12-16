@@ -26,14 +26,13 @@ object LoginHelper {
 
     private const val TAG = "LOGIN_HELPER"
 
-    // 이 값을 google-services.json 내에 있는 R.string.default_web_client_id 값을 넣어야함
     var googleClientId = ""
     private var activity: Activity? = null
     private var signInResult: ((String?) -> Unit)? = null
 
     /**
      * @param activity Activity
-     * @param googleClientId Google Client Id
+     * @param googleClientId getString(R.string.default_web_client_id)
      * @param signInResult Function(String)
      *          Parameter String : UID
      *          Success Login : parameter is NotNull And NotBlank string
@@ -57,10 +56,10 @@ object LoginHelper {
     fun signOut(): Unit = auth.signOut()
 
     private var google: GoogleLogin? = null
-    private const val GOOGLE_LOGIN_REQUEST_CODE = 1000001
+    private const val GOOGLE_LOGIN_REQUEST_CODE = 9001
 
     private val callbackManager by lazy { CallbackManager.Factory.create() }
-    private const val FACEBOOK_LOGIN_REQUEST_CODE = 1000002
+    private const val FACEBOOK_LOGIN_REQUEST_CODE = 9002
     fun signIn(type: LoginType) {
         activity
             ?: throw IllegalArgumentException("Please Do LoginHelper.init")
@@ -98,7 +97,7 @@ object LoginHelper {
         }
     }
 
-    fun loginActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    fun loginActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             GOOGLE_LOGIN_REQUEST_CODE -> {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
