@@ -12,6 +12,7 @@ class GoogleLogin {
         gso?.let { it }
             ?: let {
                 gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(LoginHelper.googleClientId)
                     .requestEmail()
                     .build()
 

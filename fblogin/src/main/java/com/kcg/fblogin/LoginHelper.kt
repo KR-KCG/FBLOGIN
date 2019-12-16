@@ -26,11 +26,13 @@ object LoginHelper {
 
     private const val TAG = "LOGIN_HELPER"
 
+    var googleClientId = ""
     private var activity: Activity? = null
     private var signInResult: ((String?) -> Unit)? = null
 
     /**
      * @param activity Activity
+     * @param googleClientId getString(R.string.default_web_client_id)
      * @param signInResult Function(String)
      *          Parameter String : UID
      *          Success Login : parameter is NotNull And NotBlank string
@@ -38,9 +40,11 @@ object LoginHelper {
      */
     fun init(
         activity: Activity,
+        googleClientId: String,
         signInResult: ((String?) -> Unit)?
     ) {
         this.activity = activity
+        this.googleClientId = googleClientId
         this.signInResult = signInResult
     }
 
