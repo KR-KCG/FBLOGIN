@@ -9,17 +9,14 @@ class GoogleLogin {
 
     private var gso: GoogleSignInOptions? = null
     private fun getGso(): GoogleSignInOptions =
-        if (LoginHelper.googleClientId.isBlank()) throw IllegalArgumentException("Please reset your Google Client ID.")
-        else
-            gso?.let { it }
-                ?: let {
-                    gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken(LoginHelper.googleClientId)
-                        .requestEmail()
-                        .build()
+        gso?.let { it }
+            ?: let {
+                gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build()
 
-                    gso!!
-                }
+                gso!!
+            }
 
     private var client: GoogleSignInClient? = null
     fun getClient(activity: Activity): GoogleSignInClient =
