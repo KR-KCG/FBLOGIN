@@ -13,10 +13,7 @@ import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.*
 
 object LoginHelper {
 
@@ -28,20 +25,20 @@ object LoginHelper {
 
     var googleClientId = ""
     private var activity: Activity? = null
-    private var signInResult: ((String?) -> Unit)? = null
+    private var signInResult: ((FirebaseUser?) -> Unit)? = null
 
     /**
      * @param activity Activity
      * @param googleClientId getString(R.string.default_web_client_id)
      * @param signInResult Function(String)
-     *          Parameter String : UID
-     *          Success Login : parameter is NotNull And NotBlank string
-     *          Failed Login : parameter is Null Or Blank string
+     *          Parameter FirebaseUser
+     *          Success Login : parameter is NotNull
+     *          Failed Login : parameter is Null
      */
     fun init(
         activity: Activity,
         googleClientId: String,
-        signInResult: ((String?) -> Unit)?
+        signInResult: ((FirebaseUser?) -> Unit)?
     ) {
         this.activity = activity
         this.googleClientId = googleClientId
@@ -49,17 +46,16 @@ object LoginHelper {
     }
 
     private val auth by lazy { FirebaseAuth.getInstance() }
-    fun isSignin(): Boolean = auth.currentUser != null
+    fun isSignIn(): Boolean = auth.currentUser != null
     fun getUID(): String? = auth.currentUser?.uid
     fun getEmail(): String? = auth.currentUser?.email
-    fun getProviderId(): String? = auth.currentUser?.providerId
+    fun getFirebaseUser(): FirebaseUser? = auth.currentUser
     fun signOut(): Unit = auth.signOut()
 
     private var google: GoogleLogin? = null
     private const val GOOGLE_LOGIN_REQUEST_CODE = 9001
 
     private val callbackManager by lazy { CallbackManager.Factory.create() }
-    private const val FACEBOOK_LOGIN_REQUEST_CODE = 9002
     fun signIn(type: LoginType) {
         activity
             ?: throw IllegalArgumentException("Please Do LoginHelper.init")
@@ -94,12 +90,14 @@ object LoginHelper {
                         }
                     })
 
-                LoginManager.getInstance().logInWithReadPermissions(activity!!, arrayListOf("public_profile","email"))
+                LoginManager.getInstance()
+                    .logInWithReadPermissions(activity!!, arrayListOf("public_profile", "email"))
             }
         }
     }
 
     fun loginActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
         when (requestCode) {
             GOOGLE_LOGIN_REQUEST_CODE -> {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -112,7 +110,7 @@ object LoginHelper {
                 }
             }
 
-            FACEBOOK_LOGIN_REQUEST_CODE -> callbackManager.onActivityResult(
+            else -> callbackManager.onActivityResult(
                 requestCode,
                 resultCode,
                 data
@@ -129,8 +127,7 @@ object LoginHelper {
     }
 
     private fun firebaseAuthWithFacebook(token: AccessToken) {
-        Log.d(TAG, "handleFacebookAccessToken:$token")
-
+        Log.d(TAG, "handleFacebookAccessToken:${token.userId}")
 
         signInWithCredential(FacebookAuthProvider.getCredential(token.token))
     }
@@ -138,8 +135,8 @@ object LoginHelper {
     private fun signInWithCredential(credential: AuthCredential) {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(activity!!) {
-                if (it.isSuccessful && auth.currentUser != null) {
-                    signInResult?.invoke(getUID())
+                if (it.isSuccessful) {
+                    signInResult?.invoke(it.result?.user)
                 } else signInResult?.invoke(null)
             }
     }
