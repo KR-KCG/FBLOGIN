@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseUser
 import com.kcg.fblogin.LoginHelper
 import kotlinx.android.synthetic.main.activity_sample.*
 
@@ -14,22 +15,26 @@ class SampleActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sample)
 
-        LoginHelper.init(this, getString(R.string.default_web_client_id)) {
-
-            it?.let {
-                Toast.makeText(
-                    this@SampleActivity,
-                    "성공 : ${it.uid}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } ?: let {
-                Toast.makeText(
-                    this@SampleActivity,
-                    "실패",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
+        LoginHelper.init(
+            this,
+            getString(R.string.default_web_client_id),
+            object : LoginHelper.SignInResult {
+                override fun invoke(firebaseUser: FirebaseUser?) {
+                    firebaseUser?.let {
+                        Toast.makeText(
+                            this@SampleActivity,
+                            "성공 : ${it.uid}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } ?: let {
+                        Toast.makeText(
+                            this@SampleActivity,
+                            "실패",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            })
 
         loginGoogle.setOnClickListener { LoginHelper.signIn(LoginHelper.LoginType.GOOGLE) }
         loginFacebook.setOnClickListener { LoginHelper.signIn(LoginHelper.LoginType.FACEBOOK) }
