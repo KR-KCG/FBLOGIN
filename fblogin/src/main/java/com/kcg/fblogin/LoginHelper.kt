@@ -21,11 +21,15 @@ object LoginHelper {
         GOOGLE, FACEBOOK
     }
 
+    interface SignInResult {
+        fun invoke(firebaseUser: FirebaseUser?)
+    }
+
     private const val TAG = "LOGIN_HELPER"
 
     var googleClientId = ""
     private var activity: Activity? = null
-    private var signInResult: ((FirebaseUser?) -> Unit)? = null
+    private var signInResult: SignInResult? = null
 
     /**
      * @param activity Activity
@@ -38,7 +42,7 @@ object LoginHelper {
     fun init(
         activity: Activity,
         googleClientId: String,
-        signInResult: ((FirebaseUser?) -> Unit)?
+        signInResult: SignInResult?
     ) {
         this.activity = activity
         this.googleClientId = googleClientId
